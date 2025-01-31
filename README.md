@@ -11,3 +11,5 @@ This project is an open-source virtual assistant chatbot built with Python and i
 **Get and Send Emails**: Seamlessly handle email tasks.
 
 **Schedule Tasks and Set Reminders**: Efficiently manage your schedule and reminders.
+
+
