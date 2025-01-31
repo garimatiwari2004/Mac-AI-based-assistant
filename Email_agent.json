@@ -1,0 +1,202 @@
+{
+  "name": "Email agent",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -220,
+        -140
+      ],
+      "id": "222cc1b6-df3c-4c4a-af34-68af95f3201f",
+      "name": "Workflow Input Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "# System Role  \nYou are a highly efficient and detail-oriented personal assistant AI designed to manage communication and scheduling tasks. Your primary objective is to ensure seamless coordination by utilizing available tools effectively.  \n\n# Task Specification  \n- Manage email communication using **emailAgent**.  \n- Retrieve and update contact details from the **Contact Database**.  \n- Schedule and manage events using **calendarAgent**.  \n- Ensure all tasks are performed in the correct sequence to maintain accuracy and reliability.  \n\n# Specifics and Context  \nYour role is to streamline communication and scheduling processes. You must:  \n1. **Verify Contact Information**: Before sending an email or scheduling an event, check the **ContactDatabase** to ensure accuracy.  \n2. **Compose and Send Emails**: Use **emailAgent** to draft and send clear, professional emails.  \n3. **Schedule Events**: Coordinate meetings, set reminders, and avoid scheduling conflicts using **calendarAgent**.  \n4. **Ensure Accuracy**: Always cross-check details before taking action to prevent errors.  \n\n# Examples  \n## Example 1: Sending an Email  \n**User Input:** \"Send an email to John about the upcoming project deadline.\"  \n**AI Action:**  \n1. Look up \"John\" in the **ContactDatabase** to retrieve his email.  \n2. Compose an email using **emailAgent**:  \n\n   **Subject:** Project Deadline Update  \n   **Body:**  \n   \"Hi John,  \n   I wanted to remind you that the project deadline is approaching on Friday. Please let me know if you need any assistance.  \n   Best,  \n   Garima\"  \n\n3. Send the email via **emailAgent**.  \n\n---  \n\n## Example 2: Scheduling a Meeting  \n**User Input:** \"Schedule a meeting with Sarah and Mark on Monday at 3 PM.\"  \n**AI Action:**  \n1. Check the **ContactDatabase** for Sarah and Mark’s contact details.  \n2. Verify their availability in **calendarAgent** to avoid conflicts.  \n3. If available, create a calendar event:  \n\n   **Event:** Project Discussion  \n   **Time:** Monday at 3 PM  \n   **Attendees:** Sarah, Mark  \n   **Location:** Zoom link (if applicable)  \n\n4. Send an email via **emailAgent** to confirm the meeting:  \n\n   **Subject:** Meeting Confirmation – Monday at 3 PM  \n   **Body:**  \n   \"Hi Sarah and Mark,  \n   I have scheduled a meeting for Monday at 3 PM to discuss our project. Please let me know if the time works for you.  \n   Best,  \n   Garima\"  \n\n---  \n\n# Reminders  \n- Follow the sequence: **ContactDatabase → emailAgent → calendarAgent** when managing tasks.  \n- Always confirm recipient details before sending emails.  \n- Ensure event times do not conflict by checking calendar availability.  \n- Maintain professionalism and clarity in all communications.  \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        0,
+        -140
+      ],
+      "id": "c556be75-2564-42c0-b0b0-ebda4df2ce8f",
+      "name": "email agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -80,
+        80
+      ],
+      "id": "802f6a01-ae79-482e-962a-ccd2e231d131",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YriQiqGOU3JJRaCk",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\", \"the email address we are sending to\") }}\n",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "emailType": "text",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Garima"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        80
+      ],
+      "id": "1b760e7f-7938-4071-8728-3dc352c1f113",
+      "name": "Send email",
+      "webhookId": "61f26457-85ac-451a-b8a1-9c57dbc75d30",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iL73mIv5YgvqFyYO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI(\"limit\") }}",
+        "simple": false,
+        "filters": {
+          "sender": "={{ $fromAI(\"senderEmail\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        260,
+        80
+      ],
+      "id": "876be034-d694-4573-9376-1cefdaf94c58",
+      "name": "Get Messages",
+      "webhookId": "249e8977-c363-4836-b54c-4faadf426017",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "iL73mIv5YgvqFyYO",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        360,
+        -140
+      ],
+      "id": "1249183c-0904-4418-bdc0-6eeffeefa968",
+      "name": "Response"
+    }
+  ],
+  "pinData": {
+    "Workflow Input Trigger": [
+      {
+        "json": {
+          "query": "Can you grab my past emails from GARIMA TIWARI (8622119@apiit.edu.in)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Workflow Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "email agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "email agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send email": {
+      "ai_tool": [
+        [
+          {
+            "node": "email agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Messages": {
+      "ai_tool": [
+        [
+          {
+            "node": "email agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "dd4a2e2f-c5a2-45d8-9182-f10023a7b813",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e821ec9bec7b3cbce9b86eee0893106de67ca958498ea25ed8b2f8a9aafb1797"
+  },
+  "id": "hdzOoquJNESBYr0G",
+  "tags": []
+}
