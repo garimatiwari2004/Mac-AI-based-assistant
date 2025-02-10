@@ -1,0 +1,212 @@
+{
+  "name": "Calendar Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "jsonExample"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -360,
+        -120
+      ],
+      "id": "bf6df151-88c9-4ded-8c20-adf5780d23b0",
+      "name": "Workflow Input Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=<system_prompt>  \n  YOU ARE AN INTELLIGENT CALENDAR AGENT, EXPERTLY DESIGNED TO MANAGE, ORGANIZE, AND TAKE ACTIONS ON EVENTS BASED ON THE CURRENT DATE AND TIME. YOUR PRIMARY ROLE IS TO AUTOMATE TASKS, PROVIDE REMINDERS, AND ENSURE OPTIMAL SCHEDULING EFFICIENCY. YOU CAN USE CURRENT TIME {{ $now }}\n\n### **INSTRUCTIONS**  \n\n- **DETECT THE CURRENT TIME**: Always check the current system time before making any decisions.  \n- **IDENTIFY RELEVANT EVENTS**: Recognize upcoming, ongoing, and past events based on timestamps.  \n- **EXECUTE ACTIONS**: Take appropriate actions such as sending reminders, updating event statuses, or rescheduling based on predefined rules.  \n- **PRIORITIZE TASKS**: If multiple actions are needed, prioritize based on urgency and importance.  \n- **HANDLE CONFLICTS**: Detect scheduling conflicts and propose solutions.  \n- **RESPOND PROACTIVELY**: If an event is approaching, notify the user in advance.  \n\n### **CHAIN OF THOUGHTS**  \n\n1. **CHECK CURRENT TIME**  \n   - Retrieve the current system time and date.  \n   - Compare it with scheduled events.  \n\n2. **ANALYZE UPCOMING EVENTS**  \n   - Identify events occurring in the next **5 minutes, 30 minutes, 1 hour, or later today**.  \n   - Determine urgency and necessary actions.  \n\n3. **DETECT CONFLICTS**  \n   - Identify overlapping or conflicting events.  \n   - Suggest possible rescheduling or prioritization.  \n\n4. **TAKE ACTION BASED ON TIME**  \n   - If an event is **starting now**, mark it as **active** and notify the user.  \n   - If an event is **ending soon**, prepare post-event actions (e.g., follow-ups, summaries).  \n   - If an event is **missed**, log it as **missed** and suggest next steps.  \n\n5. **ADAPT TO CHANGES**  \n   - Modify schedules dynamically if new priorities arise.  \n   - Allow users to make last-minute changes efficiently.  \n\n### **WHAT NOT TO DO**  \n\n- **DO NOT IGNORE CURRENT TIME** – Always factor in the present moment.  \n- **DO NOT MISINTERPRET EVENT TIMESTAMPS** – Ensure correct time zone handling.  \n- **DO NOT OVERWRITE USER DATA** – Modify only when explicitly requested.  \n- **DO NOT MISS CRITICAL NOTIFICATIONS** – Ensure timely reminders.  \n- **DO NOT CREATE CONFLICTS** – Suggest solutions instead of causing issues.  \n\n</system_prompt>  \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -140,
+        -120
+      ],
+      "id": "5e697f3e-b676-4347-b9fc-8bf15bdfb391",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        -200,
+        80
+      ],
+      "id": "600d8dc5-23f4-42c3-ac1b-2c7df68a4024",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YriQiqGOU3JJRaCk",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "garimatiwari1803@gmail.com",
+          "mode": "list",
+          "cachedResultName": "garimatiwari1803@gmail.com"
+        },
+        "start": "={{ $fromAI(\"startTime\") }}",
+        "end": "={{ $fromAI(\"endTime\") }}",
+        "additionalFields": {
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -40,
+        120
+      ],
+      "id": "287dbd29-72a5-48a8-99cf-7a9d929f762c",
+      "name": "Create Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CqqvSCaPuNgPtWqI",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "garimatiwari1803@gmail.com",
+          "mode": "list",
+          "cachedResultName": "garimatiwari1803@gmail.com"
+        },
+        "returnAll": true,
+        "timeMin": "={{ $fromAI(\"oneDayBefore\",\"one day before the user requested\") }}",
+        "timeMax": "={{ $fromAI(\"oneDayAfter\",\"one day after the user requested\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        120,
+        100
+      ],
+      "id": "8662f8dd-3afc-48d8-8a64-b2beefef7968",
+      "name": "get events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "CqqvSCaPuNgPtWqI",
+          "name": "Google Calendar account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a689b239-2fef-496d-b42e-a4b4ad0f2b68",
+              "name": "response",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        -120
+      ],
+      "id": "11736e34-f4be-4a85-86f8-ca6ced4dccab",
+      "name": "Response"
+    }
+  ],
+  "pinData": {
+    "Workflow Input Trigger": [
+      {
+        "json": {
+          "query": "create an event at 6pm for dinner"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Workflow Input Trigger": {
+      "main": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bebf04bd-b92c-4b11-b4bd-c720988a6ee2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e821ec9bec7b3cbce9b86eee0893106de67ca958498ea25ed8b2f8a9aafb1797"
+  },
+  "id": "xWNtxShY56CjxJVT",
+  "tags": []
+}
