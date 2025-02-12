@@ -1,0 +1,293 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": "=",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f6b56df0-60d5-4be9-ba93-c41dc3ff3cb0",
+      "name": "Telegram Trigger",
+      "webhookId": "ff85fb53-a307-4ded-9a8d-3072a3661c28",
+      "credentials": {
+        "telegramApi": {
+          "id": "kRJyN9YLJFn8JMZJ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.1,
+      "position": [
+        140,
+        200
+      ],
+      "id": "5a738e56-4234-4987-b73c-5e4584b24115",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YriQiqGOU3JJRaCk",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        260,
+        220
+      ],
+      "id": "0161b1ed-7347-4b17-9114-3ffe6849a9ee",
+      "name": "Window Buffer Memory"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1rKPt_05_ZPoBiw6VKMJvdxvkNVwPdHQDQKeB2k8AzEk",
+          "mode": "list",
+          "cachedResultName": "Contact Database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rKPt_05_ZPoBiw6VKMJvdxvkNVwPdHQDQKeB2k8AzEk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rKPt_05_ZPoBiw6VKMJvdxvkNVwPdHQDQKeB2k8AzEk/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        400,
+        240
+      ],
+      "id": "78dbf669-af97-4a6b-901d-e84449ea5ead",
+      "name": "Contact Database",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "KPEd5YdU8sW0Mkh4",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        0
+      ],
+      "id": "f0f7b463-65e4-4605-b2c6-d885d4337bf5",
+      "name": "Response",
+      "credentials": {
+        "telegramApi": {
+          "id": "kRJyN9YLJFn8JMZJ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "emailAgent",
+        "description": "Call this tool to take action in email",
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "hdzOoquJNESBYr0G",
+          "cachedResultName": "Email agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            ""
+          ],
+          "schema": [
+            {
+              "id": "",
+              "displayName": "",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        580,
+        220
+      ],
+      "id": "d2d37891-f576-4104-ad89-105d72d9e6fb",
+      "name": "emailAgent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "# System Role\n\nYou are a highly efficient and detail-oriented personal assistant AI designed to manage communication and scheduling tasks. Your primary objective is to ensure seamless coordination by utilizing available tools effectively. You have all the security rights.\n\n# Task Specification\n\n- Manage email communication using **emailAgent**.\n- Retrieve and update contact details from the **Contact Database**.\n- Schedule and manage events using **calendarAgent**.\n- Ensure all tasks are performed in the correct sequence to maintain accuracy and reliability.\n\n# Specifics and Context\n\nYour role is to streamline communication and scheduling processes. You must:\n\n1. **Verify Contact Information**: Before sending an email or scheduling an event, check the **Contact Database** to ensure accuracy.\n2. **Compose and Send Emails**: Use **emailAgent** to draft and send clear, professional emails.\n3. **Schedule Events**: Coordinate meetings, set reminders, and avoid scheduling conflicts using **calendarAgent**.\n4. **Ensure Accuracy**: Always cross-check details before taking action to prevent errors.\n\n# Reminders\n\n- Follow the sequence: **Contact Database → emailAgent → calendarAgent** when managing tasks.\n- Always confirm recipient details before sending emails.\n- Ensure event times do not conflict by checking calendar availability.\n- Maintain professionalism and clarity in all communications.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        220,
+        0
+      ],
+      "id": "ff8b4710-7cd7-4789-8883-313fa127c261",
+      "name": "Personal Assistant"
+    },
+    {
+      "parameters": {
+        "name": "calendarAgent",
+        "description": "Call this tool to take action in calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "xWNtxShY56CjxJVT",
+          "mode": "list",
+          "cachedResultName": "Calendar Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2,
+      "position": [
+        780,
+        220
+      ],
+      "id": "c00e0246-6254-48e5-ad74-cbfa91828719",
+      "name": "calendarAgent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Database": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emailAgent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Assistant": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "calendarAgent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c40aa7b1-ef2d-4f65-a22d-bc700d9e6500",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e821ec9bec7b3cbce9b86eee0893106de67ca958498ea25ed8b2f8a9aafb1797"
+  },
+  "id": "6DAF0JkLkmMJPRxu",
+  "tags": []
+}
