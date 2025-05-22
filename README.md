@@ -47,13 +47,12 @@ B --> H[Window Memory Buffer]
 Captures incoming messages from Telegram and initiates the assistant.
 
 2. LangChain Personal Assistant
-The core logic driven by a detailed system prompt. It:
+The core logic driven by a detailed system prompt. It
+* Verifies contact details
 
-Verifies contact details
+* Triggers email or calendar agents as required
 
-Triggers email or calendar agents as required
-
-Coordinates with tools to manage tasks in the proper order
+* Coordinates with tools to manage tasks in the proper order
 
 3. Contact Database
 Google Sheets integration that stores verified contact information.
