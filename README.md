@@ -19,16 +19,28 @@ Modular agents for email (emailAgent) and calendar (calendarAgent)
 
 ## 🔧 Architecture Overview
 mermaid
+
+
 Copy
+
 Edit
+
 graph LR
+
 A[Telegram Trigger] --> B[LangChain Personal Assistant]
+
 B --> C[Google Sheets - Contact Database]
+
 B --> D[Tool: emailAgent]
+
 B --> E[Tool: calendarAgent]
+
 B --> F[Response via Telegram]
+
 B --> G[OpenAI GPT-4o]
+
 B --> H[Window Memory Buffer]
+
 
 ## 🧠 Workflow Breakdown
 1. Telegram Trigger
