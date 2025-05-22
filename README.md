@@ -2,7 +2,7 @@
 
 This workflow is an intelligent Telegram-based Personal Assistant powered by n8n, LangChain, OpenAI (GPT-4o), and integrations with Google Sheets, Calendar, and an Email Agent. It automates communication, contact management, and event scheduling using a natural language interface.
 
-✨ Features
+## ✨ Features
 Chat-triggered Assistant via Telegram
 
 OpenAI GPT-4o for conversation and decision-making
@@ -17,7 +17,7 @@ Memory buffer for contextual conversations
 
 Modular agents for email (emailAgent) and calendar (calendarAgent)
 
-🔧 Architecture Overview
+## 🔧 Architecture Overview
 mermaid
 Copy
 Edit
@@ -29,7 +29,8 @@ B --> E[Tool: calendarAgent]
 B --> F[Response via Telegram]
 B --> G[OpenAI GPT-4o]
 B --> H[Window Memory Buffer]
-🧠 Workflow Breakdown
+
+## 🧠 Workflow Breakdown
 1. Telegram Trigger
 Captures incoming messages from Telegram and initiates the assistant.
 
@@ -60,7 +61,7 @@ Maintains chat context per user session for coherent multi-turn interactions.
 8. Response
 Sends assistant replies back to the user via Telegram.
 
-🛠️ Setup Instructions
+## 🛠️ Setup Instructions
 Prerequisites
 n8n self-hosted or cloud instance
 
@@ -91,21 +92,21 @@ Activate the workflow.
 
 Start messaging your bot in Telegram!
 
-🧩 Example Usage
+## 🧩 Example Usage
 User Message:
 
-"Schedule a meeting with Alice tomorrow at 3 PM."
+"Schedule a meeting with Janvi tomorrow at 3 PM."
 
 Assistant Response:
 
 "Verified Alice’s contact. No scheduling conflicts. Meeting scheduled and confirmation email sent."
 
-📁 Files
+## 📁 Files
 workflow.json – Full n8n workflow definition
 
-README.md – This file
 
-🤝 Contributions
+
+## 🤝 Contributions
 Pull requests are welcome. For major changes, please open an issue first.
 
 
